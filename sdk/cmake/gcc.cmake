@@ -34,10 +34,6 @@ if(USE_DUMMY_PSEH)
     add_definitions(-D_USE_DUMMY_PSEH=1)
 endif()
 
-if(STACK_PROTECTOR)
-    add_compile_flags(${MODULE} "-fstack-protector-all")
-endif()
-
 # Compiler Core
 add_compile_flags("-pipe -fms-extensions -fno-strict-aliasing")
 
@@ -97,6 +93,15 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
             add_compile_flags("-femit-struct-debug-detailed=none -feliminate-unused-debug-symbols")
         endif()
     endif()
+endif()
+
+# Dynamic analysis
+if(STACK_PROTECTOR)
+    add_compile_options(-fstack-protector-all)
+endif()
+
+if(SANITIZE_UB)
+    add_compile_definitions(__SANITIZE_UB__)
 endif()
 
 # Tuning
@@ -329,8 +334,29 @@ function(set_module_type_toolchain MODULE TYPE)
         #add_linker_script(${MODULE} ${REACTOS_SOURCE_DIR}/sdk/cmake/init-section.lds)
     endif()
     
+    # Dynamic analysis
     if(STACK_PROTECTOR)
         target_link_libraries(${MODULE} gcc_ssp)
+    endif()
+
+    if(SANITIZE_UB)
+        if(${TYPE} STREQUAL kernelmodedriver OR ${TYPE} STREQUAL kerneldll OR ${TYPE} STREQUAL wdmdriver)
+            target_compile_options(${MODULE} PUBLIC "-fsanitize=undefined;-fno-sanitize=alignment")
+        endif()
+
+        if(${TYPE} STREQUAL "wdmdriver" OR ${TYPE} STREQUAL "kernelmodedriver")
+            target_link_libraries(${MODULE} ksanitize)
+        endif()
+
+    # if(NOT (${TYPE} STREQUAL "nativecui") AND NOT (${MODULE} STREQUAL "svchost"))
+    #     target_compile_options(${MODULE} PUBLIC "-fsanitize=undefined;-fno-sanitize=alignment")
+    # endif()
+
+    #     if((${TYPE} STREQUAL "kernelmodedriver") OR (${TYPE} STREQUAL "wdmdriver"))
+    #         target_link_libraries(${MODULE} libsan)
+    #     elseif(NOT(${TYPE} STREQUAL "kerneldll") AND NOT (${TYPE} STREQUAL "nativecui"))
+    #         target_link_libraries(${MODULE} libusan)
+    #     endif()
     endif()
 endfunction()
 

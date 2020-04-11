@@ -39,6 +39,11 @@ if(STACK_PROTECTOR)
     target_link_libraries(ntkrnlmp gcc_ssp)
 endif()
 
+if(SANITIZE_UB)
+    target_compile_options(ntkrnlmp PUBLIC "-fsanitize=undefined;-fno-sanitize=alignment")
+    target_link_libraries(ntkrnlmp ksanitize)
+endif()
+
 if(RUNTIME_CHECKS)
     target_link_libraries(ntkrnlmp runtmchk)
 endif()

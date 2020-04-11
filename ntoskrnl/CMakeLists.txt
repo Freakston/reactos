@@ -44,9 +44,17 @@ endif()
 
 target_link_libraries(ntoskrnl cportlib csq ${PSEH_LIB} arbiter cmlib ntlsalib rtl ${ROSSYM_LIB} libcntpr wdmguid ioevent)
 
+# dynamic analysis switches
 if(STACK_PROTECTOR)
     target_link_libraries(ntoskrnl gcc_ssp)
-elseif(RUNTIME_CHECKS)
+endif()
+
+if(SANITIZE_UB)
+    target_compile_options(ntoskrnl PUBLIC "-fsanitize=undefined;-fno-sanitize=alignment")
+    target_link_libraries(ntoskrnl ksanitize)
+endif()
+
+if(RUNTIME_CHECKS)
     target_link_libraries(ntoskrnl runtmchk)
 endif()
 
