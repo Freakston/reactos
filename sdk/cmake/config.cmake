@@ -68,7 +68,7 @@ else()
     set(_WINKD_ FALSE CACHE BOOL "Whether to compile with the KD protocol.")
 endif()
 
-set(_ELF_ FALSE CACHE BOOL
+set(_ELF_ FALSE CACHE BOOL.
 "Whether to compile support for ELF files.
 Do not enable unless you know what you're doing.")
 
@@ -89,7 +89,7 @@ endif()
 
 if(GCC)
     option(STACK_PROTECTOR "Whether to enable the GCC stack checker while compiling" OFF)
-    option(SANITIZE_UB "Enable -fsanitize=undefined for GCC builds" OFF)
+    option(SANITIZE_UB "Enable -fsanitize=undefined for GCC builds" ON)
 endif()
 
 set(USE_DUMMY_PSEH FALSE CACHE BOOL
